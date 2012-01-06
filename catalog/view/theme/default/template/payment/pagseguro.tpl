@@ -18,14 +18,19 @@
 </table>
 </div>
 
-<script type="text/javascript"><!--
-$('#checkout form').submit(function() {
-    $.ajax({
-        type: 'GET',
-        url: 'index.php?route=payment/pagseguro/confirm',
-        success: function(t) {
-            location = '<?php echo $continue; ?>'
-        }
-    });
-})
-//--></script>
+<script type="text/javascript">
+    function checkout() {
+        document.pagseguro.submit();
+        $.ajax({
+            type: 'GET',
+            url: 'index.php?route=payment/pagseguro/confirm',
+            success: function(t) {
+                location = '<?php echo $continue; ?>'
+            }
+        });
+    };
+</script>
+
+
+
+

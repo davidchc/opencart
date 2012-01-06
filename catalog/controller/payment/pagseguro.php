@@ -7,14 +7,14 @@
  * na página de checkout e enviar estes dados para o getway de pagamento.
  * @package pagseguro_opencart
  * <code>
- * \@include pgs/pgs.php
- * \@include pgs/tratadados.php
+ * \@include PagSeguroLibrary/PagSeguroLibrary.php
  * </code>
  * @author ldmotta - ldmotta@gmail.com
  * @link motanet.com.br
  */
-require_once ('pgs/pgs.php');
-require_once ('pgs/tratadados.php');
+
+require_once (DIR_APPLICATION . "controller/payment/PagSeguroLibrary/PagSeguroLibrary.php");
+
 
 class ControllerPaymentPagseguro extends Controller
 {
@@ -25,6 +25,7 @@ class ControllerPaymentPagseguro extends Controller
      * @return void
      */
 	protected function index() {
+        
 		$this->language->load('payment/pagseguro');
 		$this->load->model('payment/pagseguro');
 		
@@ -32,42 +33,82 @@ class ControllerPaymentPagseguro extends Controller
 		$this->data['button_back']    = $this->language->get('button_back');
 		
 		$this->session->data['token'] = isset($this->session->data['token']) ? $this->session->data['token'] : '';
+		
 		$this->data['continue']       = HTTPS_SERVER . 'index.php?route=checkout/success&token=' . $this->session->data['token'];
 		$this->data['back']           = HTTPS_SERVER . 'index.php?route=checkout/payment&token=' . $this->session->data['token'];
 
-        /* Aplicando a biblioteca PagSeguro */
         list($order, $cart) = $this->model_payment_pagseguro->getCart();
-        $produtos = array();
+        list($prefix, $phone) = $this->splitPhone($order['telephone']);
+
+        $frete = 0;
+		
+		if (count($this->session->data['shipping_method'])) {
+		
+		    $frete = sprintf("%01.2f", $this->session->data['shipping_method']['cost']);
+		
+		}
+
+        /* Aplicando a biblioteca PagSeguro */
+        $paymentRequest = new PaymentRequest();
+        
+        $paymentRequest->setCurrency("BRL");
+
         foreach ($cart as $item) {
-            $produtos[] = array(
-                'id'         => $item['product_id'],
-                'descricao'  => $item['name'],
-                'quantidade' => $item['quantity'],
-                'valor'      => $item['total'] / $item['quantity'],
-                'frete'      => 0,
+        
+            $paymentRequest->addItem(
+                $item['product_id'], 
+                $item['model'], 
+                $item['quantity'], 
+                $item['total'] / $item['quantity'],
+                $item['weight'],
+                $frete
             );
+        
         }
-        list($ddd, $telefone) = trataTelefone($order['telephone']);
+
+        $paymentRequest->setReference($order['order_id']);
         
-        $street = explode(',',$order['shipping_address_1']);            
-        $street = array_slice(array_merge($street, array("","","")),0,3); 
-        list($endereco, $numero, $complemento) = $street;      
+        $paymentRequest->setSender(
         
-        $cliente = array (
-          'nome'   => $order['payment_firstname'].' '.$order['payment_lastname'],
-          'cep'    => $order['payment_postcode'],
-          'end'    => $endereco,
-          'num'    => $numero,
-          'compl'  => $complemento,
-          'cidade' => $order['payment_city'],
-          'uf'     => $order['payment_zone'],
-          'pais'   => $order['payment_country'],
-          'ddd'    => $ddd,
-          'tel'    => $telefone,
-          'email'  => $order['email'],
+            $order['payment_firstname'].' '.$order['payment_lastname'], 
+        
+            $order['email'], $prefix, $phone
+        
         );
 
-		/*Pega cupom e calcula o desconto*/
+        $street = explode(',', $order['shipping_address_1']);            
+        
+        $street = array_slice(array_merge($street, array("", "", "")), 0, 3); 
+        
+        list($address, $number, $complement) = $street;      
+
+        $freight_type = $this->config->get("pagseguro_frete");
+        
+        if ($freight_type=='1'){
+		    
+		    $FREIGHT_CODE = ShippingType::getCodeByType('PAC');
+		    
+		}elseif($freight_type=='2'){
+		
+		    $FREIGHT_CODE = ShippingType::getCodeByType('SEDEX');
+		    
+		}
+
+		if( $freight_type > 0 ){ 
+		
+		    $paymentRequest->setShippingType($FREIGHT_CODE);
+		    
+		    $paymentRequest->setShippingAddress(
+		        $order['shipping_postcode'], 
+		        $address, $number, $complement,
+		        $order['shipping_address_2'],
+		        $order['shipping_city'],
+		        $order['shipping_zone_code'],
+		        $order['shipping_iso_code_3']
+		    );
+		    
+		}
+
 		if(isset($this->session->data['coupon']) && $this->session->data['coupon']){	
 			$coupon =  $this->model_checkout_coupon->getCoupon($this->session->data['coupon']);
 			$extras = 0;
@@ -106,24 +147,44 @@ class ControllerPaymentPagseguro extends Controller
 		}else{
 			$extras = 0;
 		}
+				
+		$paymentRequest->setExtraAmount($extras);
 		
-        $pgs = new Pgs(array(
-            'email_cobranca' => $this->config->get("pagseguro_mail"), 
-            'extras'          => $extras,
-            'ref_transacao'  => $order['order_id'],
-            'encoding'=>'utf-8',
-        ));
-        $pgs->cliente($cliente);
+		$paymentRequest->setRedirectUrl("http://homologacao.visie.com.br/bibliotecas/pagseguro/opencart1505/notification.php");
 
-		if (isset($this->session->data['shipping_method'])) {
-		    $produtos[0]['frete'] = str_replace('.','',sprintf("%01.2f", $this->session->data['shipping_method']['cost']));
+        // Pegando as configurações definidas no admin do módulo
+		$email = $this->config->get("pagseguro_mail");
+		$token = $this->config->get("pagseguro_token");		
+
+		/**
+		 * Você pode utilizar o método getData para capturar as credenciais
+		 * do usuário (email e token)
+         * $email = PagSeguroConfig::getData('credentials', 'email');
+         * $token = PagSeguroConfig::getData('credentials', 'token');
+		 */
+		try {
+    		/**
+             * #### Crendenciais ##### 
+             * Se desejar, utilize as credenciais pré-definidas no arquivo de configurações
+             * $credentials = PagSeguroConfig::getAccountCredentials();
+			 */		
+		    $credentials = new AccountCredentials($email, $token);
+		    
+			if ($url = $paymentRequest->register($credentials)) {
+				// Payment URL
+				$_form = array();
+				$_form[] = sprintf('<form action="%s" target="pagseguro" name="pagseguro" id="pagseguro" method="post">', $url);
+				$_form[] = '<td align="right"><a class="button" onclick="checkout()"><span>Pague com o PagSeguro</span></a></td>';
+				$_form[] = '</form>';
+                $this->form = implode("\n", $_form);
+			}
+		} catch (PagSeguroServiceException $e) {
+			die($e->getMessage());
 		}
-		
-        $pgs->adicionar($produtos);
-        $this->form = $pgs->mostra(array('print'=>false));
+        
 
-		$this->id           = 'payment';
-		
+
+		$this->id = 'payment';
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/pagseguro.tpl')) {
 			$this->template = $this->config->get('config_template') . '/template/payment/pagseguro.tpl';
 		} else {
@@ -139,8 +200,45 @@ class ControllerPaymentPagseguro extends Controller
      * @return void
      */
 	public function confirm() {
+		$this->language->load('payment/pagseguro');
 		$this->load->model('checkout/order');
+
+		$comment  = $this->language->get('text_payable') . "\n";
+		$comment .= $this->config->get('pagseguro_payable') . "\n\n";
+		$comment .= $this->language->get('text_address') . "\n";
+		$comment .= $this->config->get('config_address') . "\n\n";
+		$comment .= $this->language->get('text_payment') . "\n";
 		
-		$this->model_checkout_order->confirm( $this->session->data['order_id'], $this->config->get('pagseguro_order_status_id') );
+		$this->model_checkout_order->confirm($this->session->data['order_id'], $this->config->get('pagseguro_order_status_id'), $comment);
 	}
+	
+	/**
+	 * install - É executada quando o plugin é instalado, este método prepara o banco
+	 * para conter os status do pagseguro.
+	 */
+	function install() {        
+
+        $query = $this->db->query("SELECT COUNT( * ) AS `Registros` , `language_id` FROM `" . DB_PREFIX. "order_status` GROUP BY `language_id` ORDER BY `language_id`");
+        
+        foreach ($query->rows as $reg) {
+            $this->db->query("REPLACE INTO `" . DB_PREFIX . "order_status` (`order_status_id`, `language_id`, `name`) VALUES
+            (10200, " . $reg['language_id'] . ", 'Aguardando Pagto'),
+            (10201, " . $reg['language_id'] . ", 'Em Analise'),
+            (10202, " . $reg['language_id'] . ", 'Paga'),
+            (10203, " . $reg['language_id'] . ", 'Disponivel'),
+            (10204, " . $reg['language_id'] . ", 'Em Disputa'),
+            (10205, " . $reg['language_id'] . ", 'Devolvida'),
+            (10206, " . $reg['language_id'] . ", 'Cancelada'),
+            (10207, " . $reg['language_id'] . ", 'Desconhecido');");
+        }
+	
+	}
+	
+    function splitPhone($phone){
+        $phone = preg_replace('/[a-w]+.*/', '', $phone);
+        $numbers = preg_replace('/\D/', '', $phone);
+        $telephone = substr($numbers, sizeof($numbers) - 9);
+        $prefix = substr($numbers, sizeof($numbers) - 11, 2);
+        return array($prefix, $telephone);
+    }	
 }

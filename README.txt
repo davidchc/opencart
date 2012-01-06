@@ -1,20 +1,18 @@
 ﻿=== Módulo de integração PagSeguro + Opencart ===
 Contributors: 
     ldmotta(visie.com.br - Implementação do múdulo da visie),
-	DGMike (virgula.uol.com.br - Desenvolvedor do módulo pgs.),
-	Flavio Sena (pagseguro.uol.com.br - Ajustes retorno automático, registro em db, cosméticos.)
-Donate link: http://motanet.com.br/
+
+Module version: 1.0.2
 Tags: pagseguro, opencart
-Module version: 1.0.5.2
 Tested up to: Opencart v1.5.0.5
 Requires at least: 1.0.5.2
-Stable tag: 1.5.0.5
+Stable tag: 1.5.1.3
 
 Módulo de integração do Opencart com o Pagseguro
 
 == Description ==
 
-Permite que o OpenCart utilize o meio de pagamento PagSeguro, de forma fácil e intuitiva, contém todas as
+Permite que o OpenCart utilize o geteway de pagamento PagSeguro, de forma fácil e intuitiva, contém todas as
 ferramentas necessárias a esta integração.
 
 
@@ -34,9 +32,7 @@ Passos para instalação
 2. Instale o módulo na sesão Extensions -> Payment na área administrativa do OpenCart
 3. Ative o módulo da página de edição do módulo em Extensions -> Payment -> Edit
 4. Defina a url de retorno no site do pagseguro (https://pagseguro.uol.com.br/preferences/automaticReturn.jhtml) como:
-   "http://seu_dominio.com.br/retorno.php"
-5. Execute o arquivo ps_db_install.php para atualizar as tabelas de status no banco de dados
-6. Dê permissão de escrita ao arquivo ps.txt
+   "http://seu_dominio.com.br/notification.php"
 
 == Perguntas Frequentes ==
 
@@ -51,39 +47,15 @@ ao servidor onde está hospedado a sua aplicação, e ter um gerenciador de arqu
 Se já verificou a versão da sua loja virtual e ela e a versão testada com o módulo, e ainda assim não funciona,
 entre em contato com o desenvolvedor atravéz do endereço http://motanet.com.br.
 
-== Screenshots ==
-
 == Changelog ==
-= 1.0.5.2 =
-* Correção do erro de JSON no checkout
-* Implementando o admin para selecionar o status das novas transações
-
-= 1.0.5.1 =
-* Corrigido a model para funcionar com produtos que tenham atributos ou opções
-
-= 1.0.5 =
-* Corrigido a incompatibilidade com a versão 1.5.0.5 do OpenCart
-* O OpenCart utiliza agora o método title da classe document como private,
-sendo acessível apenas pelo getTitle() ou setTitle()
-
-= 1.0.4 =
-* Corrigido o retorno automático e documentação de instalação, havia um erro na 
-query de seleção do pedido para atualização de status.
-
-= 1.0.3 =
-* Atualizando o status e histórico do pedido com base no retorno automático
-* Modificações cosméticas (botão de pagamento, retorno);
-* Ajustes na gravação do pedido em banco ao iniciar a transação.
-
-= 1.0.2 =
-* Verificando a Referência da transação e atualizando o status do pedido na loja do usuário.
 
 = 1.0.1 =
-* Aplicação dos métodos de redirect() utilizados na nova versão do OpenCart.
+* Correção da imagem no título da tabela de configuração do meio de pagamento
+* Suporte a desconto
 
-== Arbitrary section ==
+= 1.0.0 =
+* Implementação da integração do opencart com o geteway pagseguro
 
-== A brief Markdown Example ==
-
-
-Para maiores informações acesse http://motanet.com.br, http://visie.com.br/pagseguro
+= 1.0.2 =
+* Alterando a key weight_class para weight_class_id conforme a nova especificaçao do opencart
+Para maiores informações acesse http://visie.com.br/pagseguro

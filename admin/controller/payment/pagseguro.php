@@ -35,22 +35,22 @@ class ControllerPaymentPagseguro extends Controller {
             $this->redirect(HTTPS_SERVER . 'index.php?route=extension/payment&token=' . $this->session->data['token']);
         }
 
-        $this->document->breadcrumbs = array(
-                array(
-                        'href'      => HTTPS_SERVER . 'index.php?route=common/home&token=' . $this->session->data['token'],
-                        'text'      => $this->language->get('text_home'),
-                        'separator' => FALSE
-                ),
-                array(
-                        'href'      => HTTPS_SERVER . 'index.php?route=extension/payment&token=' . $this->session->data['token'],
-                        'text'      => $this->language->get('text_payment'),
-                        'separator' => ' :: '
-                ),
-                array(
-                        'href'      => HTTPS_SERVER . 'index.php?route=payment/pagseguro&token=' . $this->session->data['token'],
-                        'text'      => $this->language->get('heading_title'),
-                        'separator' => ' :: '
-                )
+        $this->data['breadcrumbs'] = array(
+            array(
+                    'href'      => HTTPS_SERVER . 'index.php?route=common/home&token=' . $this->session->data['token'],
+                    'text'      => $this->language->get('text_home'),
+                    'separator' => FALSE
+            ),
+            array(
+                    'href'      => HTTPS_SERVER . 'index.php?route=extension/payment&token=' . $this->session->data['token'],
+                    'text'      => $this->language->get('text_payment'),
+                    'separator' => ' :: '
+            ),
+            array(
+                    'href'      => HTTPS_SERVER . 'index.php?route=payment/pagseguro&token=' . $this->session->data['token'],
+                    'text'      => $this->language->get('heading_title'),
+                    'separator' => ' :: '
+            )
         );
         
         $langs = array(

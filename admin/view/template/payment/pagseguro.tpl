@@ -1,31 +1,18 @@
-<?php
-/**
- * Template de administração do módulo
- *
- * Exibe o formulário para edição do módulo
- * @package pagseguro_opencart
- * @author ldmotta - ldmotta@gmail.com
- * @link motanet.com.br
- */
-?>
 <?php echo $header; ?>
-
-<?php if ($error_warning) { ?>
-<div class="warning"><?php echo $error_warning; ?></div>
-<?php } ?>
-<div class="box">
-    <div class="left"></div>
-    <div class="right"></div>
+<div id="content">
+  <div class="breadcrumb">
+    <?php foreach ($breadcrumbs as $breadcrumb) { ?>
+    <?php echo $breadcrumb['separator']; ?><a href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>
+    <?php } ?>
+  </div>
+  <?php if ($error_warning) { ?>
+  <div class="warning"><?php echo $error_warning; ?></div>
+  <?php } ?>
+  <div class="box">
     <div class="heading">
-        <h1 style="background-image: url('view/image/payment.png');"><?php echo $heading_title; ?></h1>
-        <div class="buttons">
-            <a onclick="$('#form').submit();" class="button">
-                <span><?php echo $button_save; ?></span></a>
-            <a onclick="location = '<?php echo $cancel; ?>';" class="button">
-                <span><?php echo $button_cancel; ?></span></a>
-        </div>
+      <h1><img src="view/image/payment.png" alt="" /> <?php echo $heading_title; ?></h1>
+      <div class="buttons"><a onclick="$('#form').submit();" class="button"><span><?php echo $button_save; ?></span></a><a onclick="location = '<?php echo $cancel; ?>';" class="button"><span><?php echo $button_cancel; ?></span></a></div>
     </div>
-
     <div class="content">
         <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form">
             <table class="form">
@@ -44,7 +31,6 @@
                 </tr>
                 <tr>
                     <td width="25%">
-                        <span class="required">*</span>
                         <?php echo $lb_token; ?>
                     </td>
                     <td>
@@ -87,13 +73,12 @@
                     </td>
                 </tr>
             </table>
+            <div>
+                <h2><?php echo $instructions_title; ?></h2>
+                <?php echo ControllerPaymentPagseguro::formatText($instructions_info); ?>
+            </div>
         </form>
-        <div>
-            <h2><?php echo $instructions_title; ?></h2>
-
-            <?php echo ControllerPaymentPagseguro::formatText($instructions_info); ?>
-
-        </div>
-    </div><!-- content -->
-
-    <?php echo $footer; ?>
+    </div>
+  </div>
+</div>
+<?php echo $footer; ?> 

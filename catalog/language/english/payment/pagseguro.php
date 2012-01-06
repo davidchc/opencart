@@ -7,4 +7,3 @@
  */
 
 $_['text_title']   = 'PagSeguro';
-
