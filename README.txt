@@ -2,7 +2,7 @@
 Contributors: 
     ldmotta(visie.com.br - Implementação do múdulo da visie),
 
-Module version: 1.0.2
+Module version: 1.0.3
 Tags: pagseguro, opencart
 Tested up to: Opencart v1.5.0.5
 Requires at least: 1.0.5.2
@@ -59,3 +59,6 @@ entre em contato com o desenvolvedor atravéz do endereço http://motanet.com.br
 = 1.0.2 =
 * Alterando a key weight_class para weight_class_id conforme a nova especificaçao do opencart
 Para maiores informações acesse http://visie.com.br/pagseguro
+
+= 1.0.3 =
+* Implementando a nova lib pagseguro com as alterações de nomes de classes

@@ -1,10 +1,8 @@
-<?php
+<?php if (!defined('ALLOW_PAGSEGURO_RESOURCES')) { die('No direct script access allowed'); }
 
-if (!defined('ALLOW_PAGSEGURO_RESOURCES')) { die('NOT ALLOWED'); }
-
-// Production enviroment
-$PagSeguroResources['enviroment'] = Array();
-$PagSeguroResources['enviroment']['production']['webserviceUrl'] = "https://ws.pagseguro.uol.com.br";
+// Production environment
+$PagSeguroResources['environment'] = Array();
+$PagSeguroResources['environment']['production']['webserviceUrl'] = "https://ws.pagseguro.uol.com.br";
 
 // Payment service
 $PagSeguroResources['paymentService'] = Array();

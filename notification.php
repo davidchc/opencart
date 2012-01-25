@@ -20,7 +20,7 @@ class NotificationListener extends Controller {
     	
     	if ( $code && $type ) {
 			
-    		$notificationType = new NotificationType($type);
+    		$notificationType = new PagSeguroNotificationType($type);
     		$strType = $notificationType->getTypeFromValue();
 
 			switch($strType) {
@@ -58,11 +58,11 @@ class NotificationListener extends Controller {
         // Pegando as configurações definidas no admin do módulo
         $config = self::getConfig();
         
-    	$credentials = new AccountCredentials($config['email'], $config['token']);
+    	$credentials = new PagSeguroAccountCredentials($config['email'], $config['token']);
     	
     	try {
     		
-    		$transaction = NotificationService::checkTransaction($credentials, $notificationCode);
+    		$transaction = PagSeguroNotificationService::checkTransaction($credentials, $notificationCode);
     		
     		self::validateTransaction($transaction);
     		

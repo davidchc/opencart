@@ -49,7 +49,7 @@ class ControllerPaymentPagseguro extends Controller
 		}
 
         /* Aplicando a biblioteca PagSeguro */
-        $paymentRequest = new PaymentRequest();
+        $paymentRequest = new PagSeguroPaymentRequest();
         
         $paymentRequest->setCurrency("BRL");
 
@@ -86,7 +86,7 @@ class ControllerPaymentPagseguro extends Controller
         
         if ($freight_type=='1'){
 		    
-		    $FREIGHT_CODE = ShippingType::getCodeByType('PAC');
+		    $FREIGHT_CODE = PagSeguroShippingType::getCodeByType('PAC');
 		    
 		}elseif($freight_type=='2'){
 		
@@ -168,7 +168,7 @@ class ControllerPaymentPagseguro extends Controller
              * Se desejar, utilize as credenciais pré-definidas no arquivo de configurações
              * $credentials = PagSeguroConfig::getAccountCredentials();
 			 */		
-		    $credentials = new AccountCredentials($email, $token);
+		    $credentials = new PagSeguroAccountCredentials($email, $token);
 		    
 			if ($url = $paymentRequest->register($credentials)) {
 				// Payment URL
