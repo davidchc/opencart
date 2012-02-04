@@ -45,7 +45,7 @@ ao servidor onde está hospedado a sua aplicação, e ter um gerenciador de arqu
 = O módulo não funcionou na minha loja, o que fazer? =
 
 Se já verificou a versão da sua loja virtual e ela e a versão testada com o módulo, e ainda assim não funciona,
-entre em contato com o desenvolvedor atravéz do endereço http://motanet.com.br.
+entre em contato com o suporte técnico do PagSeguro 
 
 == Changelog ==
 
