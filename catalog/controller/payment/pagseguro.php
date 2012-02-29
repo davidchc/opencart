@@ -107,9 +107,20 @@ class ControllerPaymentPagseguro extends Controller
 			$extras = 0;
 		}
 		
+		if(isset($this->session->data['reward']) && $this->session->data['reward'] > 0){
+			$total_data = array();
+			$total = 0;
+			$taxes = $this->cart->getTaxes(); 
+			$results = $this->model_total_reward->getTotal($total_data, $total, $taxes);		
+			$reward =  ($total_data[0]['value'] * 100)*(-1);
+		}else{
+			$reward = 0;	
+		}	
+		
+		
         $pgs = new Pgs(array(
             'email_cobranca' => $this->config->get("pagseguro_mail"), 
-            'extras'          => $extras,
+            'extras'          => $extras-$reward,
             'ref_transacao'  => $order['order_id'],
             'encoding'=>'utf-8',
         ));
