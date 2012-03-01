@@ -27,6 +27,7 @@ class ControllerPaymentPagseguro extends Controller
 	protected function index() {
 		$this->language->load('payment/pagseguro');
 		$this->load->model('payment/pagseguro');
+		$this->load->model('total/reward');
 		
 		$this->data['button_confirm'] = $this->language->get('button_confirm');
 		$this->data['button_back']    = $this->language->get('button_back');
