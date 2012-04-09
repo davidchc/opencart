@@ -109,14 +109,17 @@ class ControllerPaymentPagseguro extends Controller
 		}
 		
 		if(isset($this->session->data['reward']) && $this->session->data['reward'] > 0){
-			$total_data = array();
-			$total = 0;
-			$taxes = $this->cart->getTaxes(); 
-			$results = $this->model_total_reward->getTotal($total_data, $total, $taxes);		
-			$reward =  ($total_data[0]['value'] * 100)*(-1);
+		    $reward_data = array();
+		    $totalValue = 0;
+		    $reward_taxes = $this->cart->getTaxes(); 
+		    $results = $this->model_total_reward->getTotal($reward_data, $totalValue, $reward_taxes);    
+		    $itemsReward = preg_replace('/[^0-9\,]/', '', $reward_data[0]['text']);
+		    $itemsReward = str_replace(',', '.', $itemsReward);
+		    $ratioReward = ($itemsReward)*100;
 		}else{
-			$reward = 0;	
-		}	
+		    $ratioReward = 0;    
+		}    
+ 	
 		
 		
         $pgs = new Pgs(array(
